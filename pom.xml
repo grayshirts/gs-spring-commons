@@ -91,6 +91,14 @@
         </dependency>
     </dependencies>
 
+    <repositories>
+        <repository>
+            <id>grayshirts-public</id>
+            <name>Grayshirts Public Repository</name>
+            <url>https://dl.bintray.com/grayshirts/public</url>
+        </repository>
+    </repositories>
+
     <licenses>
         <license>
             <name>Apache Software License 2.0</name>
