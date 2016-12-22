@@ -1,0 +1,4 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+ar.com.grayshirts.commons.spring.template.TemplateConfiguration,\
+ar.com.grayshirts.commons.spring.mail.MailConfiguration,\
+ar.com.grayshirts.commons.spring.pdf.PdfConfiguration
