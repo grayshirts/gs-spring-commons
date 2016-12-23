@@ -13,6 +13,9 @@ import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
 import java.io.InputStream;
 import java.util.Properties;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import static ar.com.grayshirts.commons.format.StringUtils.maskEmail;
 
 
 /**
@@ -100,20 +103,28 @@ public class AsyncMailSender implements JavaMailSender {
 		}
 
 		@Override public void run() {
-			if(messages!=null) {
-				for(SimpleMailMessage m : messages) {
-					mailSender.send(m);
-				}
-			} else if(mimeMessages!=null) {
-				for(MimeMessage m : mimeMessages) {
-					mailSender.send(m);
-				}
-			} else {
-				for(MimeMessagePreparator m : mimeMessagesPreparator) {
-					mailSender.send(m);
-				}
-			}
-			log.debug("E-mail sent.");
+            if(messages!=null) {
+                for(SimpleMailMessage m : messages) {
+                    mailSender.send(m);
+                    log.debug("E-mail sent to {}",
+                              Stream.of(m.getTo()).map(s->maskEmail(s)).collect(Collectors.joining(", ")));
+                }
+            } else if(mimeMessages!=null) {
+                for(MimeMessage m : mimeMessages) {
+                    mailSender.send(m);
+                    try {
+                        log.debug("E-mail sent to {}",
+                                  Stream.of(m.getHeader("To")).map(s->maskEmail(s)).collect(Collectors.joining(", ")));
+                    } catch (Throwable e) {
+                        log.warn("Error debugging e-mail sent.", e);
+                    }
+                }
+            } else {
+                for(MimeMessagePreparator m : mimeMessagesPreparator) {
+                    mailSender.send(m);
+                    log.debug("E-mail sent.");
+                }
+            }
 		}
 	}
 
