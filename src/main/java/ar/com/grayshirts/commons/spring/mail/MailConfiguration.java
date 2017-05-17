@@ -24,6 +24,10 @@ public class MailConfiguration {
 	@Value("${spring.mail.properties.smtp.auth}") private String smtpAuth;
 	@Value("${spring.mail.properties.smtp.starttls.enable}") private String starttlsEnable;
 
+    @Value("${spring.mail.corePoolSize:1}") private int corePoolSize;
+    @Value("${spring.mail.maxPoolSize:2}") private int maxPoolSize;
+    @Value("${spring.mail.queueCapacity:1000}") private int queueCapacity;
+
 	@Bean
     MailService mailService() {
 	    return new MailService();
@@ -31,7 +35,7 @@ public class MailConfiguration {
 
 	@Bean
 	JavaMailSender javaMailSender() {
-		log.info("Configuring e-mail sender and pool executor for \"" + username + "\" account");
+		log.info("Configuring e-mail sender and pool executor for \"{}\" account", username);
 		AsyncMailSender asyncMailSender = new AsyncMailSender();
 		asyncMailSender.setDefaultEncoding("UTF-8");
 		asyncMailSender.setUsername(username);
@@ -51,9 +55,9 @@ public class MailConfiguration {
 		asyncMailSender.setJavaMailProperties(props);
 
 		ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-		executor.setCorePoolSize(5);
-		executor.setMaxPoolSize(10);
-		executor.setMaxPoolSize(100);
+		executor.setCorePoolSize(corePoolSize);
+		executor.setMaxPoolSize(maxPoolSize);
+		executor.setQueueCapacity(queueCapacity);
 		executor.setWaitForTasksToCompleteOnShutdown(true);
 		executor.setThreadGroup(asyncMailSender.new LogErrorThreadGroupHandler());
 		executor.initialize();
