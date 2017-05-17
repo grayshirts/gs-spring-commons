@@ -37,7 +37,7 @@ public abstract class BaseController {
 
     @ExceptionHandler(Throwable.class)
     public ResponseEntity<RestResponse> handleException(HttpServletRequest req, Throwable ex) {
-        logger.error("Error executing {}", req.getRequestURI(), ex);
+        logger.error("Error executing {} {}", req.getMethod(), req.getRequestURI(), ex);
 
         HttpStatus httpStatus = INTERNAL_SERVER_ERROR;              // 500
         String errorMsg = ex.getMessage()!=null ? ex.getMessage() : "Internal Error";
@@ -47,7 +47,7 @@ public abstract class BaseController {
 
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<String> handleBusinessException(HttpServletRequest req, BusinessException ex) {
-        logger.debug("Business error executing " + req.getRequestURI(), ex);
+        logger.debug("Business error executing {} {}", req.getMethod(), req.getRequestURI(), ex);
 
         HttpStatus httpStatus = HttpStatus.BAD_REQUEST;             // 400
 
@@ -56,7 +56,7 @@ public abstract class BaseController {
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<String> handleResourceNotFoundException(HttpServletRequest req, ResourceNotFoundException ex) {
-        logger.debug("Resource not found executing " + req.getRequestURI(), ex);
+        logger.debug("Resource not found executing {} {}", req.getMethod(), req.getRequestURI(), ex);
 
         HttpStatus httpStatus = HttpStatus.NOT_FOUND;             // 404
 
@@ -65,7 +65,7 @@ public abstract class BaseController {
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<RestResponse> handleIllegalArgumentException(HttpServletRequest req, IllegalArgumentException ex) {
-        logger.warn("Argument error executing {}", req.getRequestURI(), ex);
+        logger.warn("Argument error executing {} {}", req.getMethod(), req.getRequestURI(), ex);
 
         HttpStatus httpStatus = HttpStatus.UNPROCESSABLE_ENTITY;    // 422
 
@@ -74,7 +74,7 @@ public abstract class BaseController {
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<RestResponse> handleAccessDeniedException(HttpServletRequest req, AccessDeniedException ex) {
-        logger.warn("Access forbidden executing {}", req.getRequestURI(), ex);
+        logger.warn("Access forbidden executing {} {}", req.getMethod(), req.getRequestURI(), ex);
 
         HttpStatus httpStatus = HttpStatus.UNAUTHORIZED;            // 401
 
@@ -83,7 +83,7 @@ public abstract class BaseController {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<RestResponse> handleArgumentNotValidException(HttpServletRequest req, MethodArgumentNotValidException ex) {
-        logger.debug("Argument error executing {} : {}", req.getRequestURI(), ex.getMessage());
+        logger.debug("Argument error executing {} {} : {}", req.getMethod(), req.getRequestURI(), ex.getMessage());
 
         HttpStatus httpStatus = UNPROCESSABLE_ENTITY;               // 422
 
@@ -93,7 +93,7 @@ public abstract class BaseController {
 
     @ExceptionHandler(ServletRequestBindingException.class)
     public ResponseEntity<RestResponse> handleMissingParameter(HttpServletRequest req, ServletRequestBindingException ex) {
-        logger.warn("Binding error executing {}", req.getRequestURI(), ex);
+        logger.warn("Binding error executing {} {}", req.getMethod(), req.getRequestURI(), ex);
 
         HttpStatus httpStatus = HttpStatus.UNPROCESSABLE_ENTITY;    // 422
 
@@ -103,14 +103,14 @@ public abstract class BaseController {
     @ExceptionHandler(GeneralSecurityException.class)
     public ResponseEntity<RestResponse> handleGeneralSecurityException(HttpServletRequest req, GeneralSecurityException ex) {
         if (ex instanceof DigestException /* || ... */) {
-            logger.error("Security error executing {}", req.getRequestURI(), ex);
+            logger.error("Security error executing {} {}", req.getMethod(), req.getRequestURI(), ex);
             return new ResponseEntity<>(new RestErrorResponse(
                 INTERNAL_SERVER_ERROR.value(), getMsg(ex.getMessage()), exceptionToErrorCode(ex)), INTERNAL_SERVER_ERROR);  // 500
         }
         if (ex instanceof AccountLockedException) {
-            logger.warn("Trying to access a locked account at {}", req.getRequestURI(), ex);
+            logger.warn("Trying to access a locked account at {} {}", req.getMethod(), req.getRequestURI(), ex);
         } else {
-            logger.debug("Security error executing {}", req.getRequestURI(), ex);
+            logger.debug("Security error executing {} {}", req.getMethod(), req.getRequestURI(), ex);
         }
         return new ResponseEntity<>(new RestErrorResponse(
             UNAUTHORIZED.value(), getMsg(ex.getMessage()), exceptionToErrorCode(ex)), UNAUTHORIZED);                    // 401
